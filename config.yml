@@ -1,0 +1,31 @@
+# Exchange settings
+exchange: binance
+
+# Trading pairs to monitor
+symbols:
+  - BTC/USDT
+  - ETH/USDT
+
+# Timeframe for analysis
+timeframe: 1d
+
+# Technical indicators for trend following
+indicators:
+  sma:
+    short_period: 20
+    long_period: 50
+  ema:
+    short_period: 12
+    long_period: 26
+
+# Signal settings
+signals:
+  # Minimum price change percentage to trigger a signal
+  min_price_change: 2.0
+  # Number of candles to confirm trend
+  trend_confirmation: 3
+
+# Discord webhook settings
+discord:
+  webhook_url: "YOUR_DISCORD_WEBHOOK_URL"
+  message_template: "🚨 {symbol} {signal_type} Signal\nPrice: {price}\nChange: {change}%\nTime: {time}" 
