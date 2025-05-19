@@ -16,6 +16,7 @@ def test_config():
     return {
         'discord': {
             'message_template': '🚨 {symbol} {signal_type} Signal\nPrice: {price}\nChange: {change}%\nTime: {time}',
+            'status_template': 'Market Status for {symbol}:\n----------------------------\nPrice: ${price:.2f} (Change: {change:.2f}%)\nRSI: {rsi:.2f}\nMACD: {macd:.2f} (Signal: {macd_signal:.2f})\nSMA20: ${sma20:.2f}\nSMA50: ${sma50:.2f}\nBollinger Bands: Upper ${bb_upper:.2f} | Lower ${bb_lower:.2f}\nTime: {time}',
             'webhook_url': 'https://discord.com/api/webhooks/test'
         },
         'indicators': {
