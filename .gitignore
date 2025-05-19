@@ -1,4 +1,10 @@
-# Python
+# Python virtual environments
+venv39/
+venv/
+env/
+.env/
+
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,11 +26,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-env/
-ENV/
-venv39/*
 # IDE
 .idea/
 .vscode/
