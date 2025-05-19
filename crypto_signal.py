@@ -8,6 +8,7 @@ import requests
 import yfinance as yf
 import pandas_ta as ta
 import logging
+import random
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -29,41 +30,117 @@ class CryptoSignal:
         # Indicator periods
         self.sma_long = self.config['indicators']['sma']['long_period']
         self.sma_short = self.config['indicators']['sma']['short_period']
+        
+        # Rate limiting settings
+        self.max_retries = 5
+        self.base_delay = 2  # Base delay in seconds
         logger.info("CryptoSignal initialized with config from %s", config_path)
 
+    def _wait_with_jitter(self, delay):
+        """Wait for a random time between delay/2 and delay seconds."""
+        jitter = random.uniform(delay/2, delay)
+        logger.info("Rate limit hit, waiting for %.2f seconds...", jitter)
+        time.sleep(jitter)
+
     def get_historical_data(self, symbol, interval='1d', limit=1095):  # 3 years = 1095 days
-        """Get historical data using yfinance."""
-        try:
-            logger.info("Starting data fetch for %s...", symbol)
-            # Convert symbol to yfinance format if needed
-            if symbol.endswith('/USDT'):
-                yf_symbol = symbol.replace('/USDT', '-USD')
-            elif symbol.endswith('/USD'):
-                yf_symbol = symbol.replace('/', '-')
-            else:
-                yf_symbol = symbol
-            
-            logger.info("Fetching data for yfinance symbol: %s", yf_symbol)
-            # Get data from yfinance
-            ticker = yf.Ticker(yf_symbol)
-            logger.info("Requesting %d days of %s data...", limit, interval)
-            df = ticker.history(period=f"{limit}d", interval=interval)
-            logger.info("Received %d rows of data", len(df))
-            
-            # Rename columns to match expected format
-            df = df.rename(columns={
-                'Open': 'open',
-                'High': 'high',
-                'Low': 'low',
-                'Close': 'close',
-                'Volume': 'volume'
-            })
-            logger.info("Historical data retrieved for %s", yf_symbol)
-            return df
-            
-        except Exception as e:
-            logger.error("Error getting historical data for %s: %s", symbol, str(e))
-            return pd.DataFrame()
+        """Get historical data using yfinance with retry logic."""
+        retry_count = 0
+        while retry_count < self.max_retries:
+            try:
+                logger.info("Starting data fetch for %s (attempt %d/%d)...", 
+                          symbol, retry_count + 1, self.max_retries)
+                
+                # Convert symbol to yfinance format if needed
+                if symbol.endswith('/USDT'):
+                    yf_symbol = symbol.replace('/USDT', '-USD')
+                elif symbol.endswith('/USD'):
+                    yf_symbol = symbol.replace('/', '-')
+                else:
+                    yf_symbol = symbol
+                
+                # Ensure the symbol is in the correct format for cryptocurrencies
+                if '-' in yf_symbol:
+                    base, quote = yf_symbol.split('-')
+                    yf_symbol = f"{base}-{quote}"
+                
+                logger.info("Fetching data for yfinance symbol: %s", yf_symbol)
+                
+                # Get data from yfinance
+                ticker = yf.Ticker(yf_symbol)
+                
+                # Log ticker info for debugging
+                try:
+                    info = ticker.info
+                    logger.info("Ticker info: %s", info)
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 429:  # Too Many Requests
+                        retry_count += 1
+                        delay = self.base_delay * (2 ** retry_count)  # Exponential backoff
+                        logger.warning("Rate limit hit while getting ticker info, retrying in %d seconds...", delay)
+                        self._wait_with_jitter(delay)
+                        continue
+                    else:
+                        logger.error("Failed to get ticker info: %s", str(e))
+                except Exception as e:
+                    logger.error("Failed to get ticker info: %s", str(e))
+                
+                logger.info("Requesting %d days of %s data...", limit, interval)
+                df = ticker.history(period=f"{limit}d", interval=interval)
+                
+                if df.empty:
+                    logger.error("%s: No price data found, symbol may be delisted (period=%dd)", yf_symbol, limit)
+                    # Try to get more information about why the data is empty
+                    try:
+                        logger.info("Attempting to get ticker history metadata...")
+                        metadata = ticker.get_history_metadata()
+                        logger.info("History metadata: %s", metadata)
+                    except requests.exceptions.HTTPError as e:
+                        if e.response.status_code == 429:  # Too Many Requests
+                            retry_count += 1
+                            delay = self.base_delay * (2 ** retry_count)
+                            logger.warning("Rate limit hit while getting metadata, retrying in %d seconds...", delay)
+                            self._wait_with_jitter(delay)
+                            continue
+                        else:
+                            logger.error("Failed to get history metadata: %s", str(e))
+                    except Exception as e:
+                        logger.error("Failed to get history metadata: %s", str(e))
+                    return pd.DataFrame()
+                
+                logger.info("Received %d rows of data", len(df))
+                logger.info("Data columns: %s", df.columns.tolist())
+                logger.info("First row: %s", df.iloc[0].to_dict())
+                logger.info("Last row: %s", df.iloc[-1].to_dict())
+                
+                # Rename columns to match expected format
+                df = df.rename(columns={
+                    'Open': 'open',
+                    'High': 'high',
+                    'Low': 'low',
+                    'Close': 'close',
+                    'Volume': 'volume'
+                })
+                logger.info("Historical data retrieved for %s", yf_symbol)
+                return df
+                
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 429:  # Too Many Requests
+                    retry_count += 1
+                    delay = self.base_delay * (2 ** retry_count)
+                    logger.warning("Rate limit hit, retrying in %d seconds...", delay)
+                    self._wait_with_jitter(delay)
+                    continue
+                else:
+                    logger.error("HTTP Error getting historical data for %s: %s", symbol, str(e))
+                    return pd.DataFrame()
+            except Exception as e:
+                logger.error("Error getting historical data for %s: %s", symbol, str(e))
+                import traceback
+                logger.error("Full error traceback: %s", traceback.format_exc())
+                return pd.DataFrame()
+        
+        logger.error("Max retries (%d) exceeded for %s", self.max_retries, symbol)
+        return pd.DataFrame()
 
     def calculate_indicators(self, df):
         """Calculate technical indicators using pandas-ta."""

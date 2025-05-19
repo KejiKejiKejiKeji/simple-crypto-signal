@@ -3,8 +3,8 @@ exchange: binance
 
 # Trading pairs to monitor
 symbols:
-  - BTC/USD
-  - ETH/USD
+  - BTC-USD
+  - ETH-USD
 
 # Timeframe for analysis
 timeframe: 1d
@@ -38,4 +38,4 @@ discord:
     📉 SMA20: ${sma20:.2f}
     📉 SMA50: ${sma50:.2f}
     📊 BB: Upper ${bb_upper:.2f} | Lower ${bb_lower:.2f}
-    ⏰ Time: {time} 
+    ⏰ Time: {time}

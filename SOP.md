@@ -130,6 +130,11 @@ If you encounter any issues:
    - Verify the Python path is correct
    - Ensure the script has execute permissions
    - Check if the cron job user has access to the application directory
+9. If you see import failure, you may not be in virtual env, we can get in by this command on windows.
+```
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+.\venv39\Scripts\Activate.ps1
+```
 
 ## References
 - [Simple Crypto Signal GitHub Repository](https://github.com/yourusername/simple-crypto-signal)
