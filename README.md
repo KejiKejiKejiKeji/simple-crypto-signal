@@ -14,7 +14,7 @@ A simplified cryptocurrency signal generator that focuses on trend following str
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/simple-crypto-signal.git
+git clone https://github.com/KejiKejiKejiKeji/simple-crypto-signal.git
 cd simple-crypto-signal
 ```
 

@@ -58,7 +58,7 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
      
      # Now install the required packages
      python3.9 -m pip install --upgrade pip
-     python3.9 -m pip install pandas numpy requests python-binance ta-lib python-dotenv
+     python3.9 -m pip install -r requirements.txt
      ```
 
 3. **Set Up Application**
@@ -75,34 +75,31 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
      - Edit config.yml and update the Discord webhook URL
      - Adjust trading pairs and indicators if needed
 
-4. **Run Crypto Signal**
-   - Connect to NAS via SSH
-   - Navigate to the application directory:
-     ```bash
-     cd /volume1/crypto-signal
-     ```
-   - Run the application:
-     ```bash
-     python3.9 crypto_signal.py
-     ```
-
-5. **Set Up Auto-Start**
-   - Open Control Panel in DSM
-   - Go to Task Scheduler
-   - Create a new Scheduled Task
-   - Set the following:
-     - Task: User-defined script
-     - User: admin
-     - Schedule: At startup
+4. **Set Up Cron Job on Synology NAS**
+   - Open DSM (Synology's web interface)
+   - Go to "Control Panel" > "Task Scheduler"
+   - Click "Create" > "Scheduled Task" > "User-defined script"
+   - Fill in the following details:
+     - Task: Crypto Signal Daily
+     - User: admin (or your preferred user)
+     - Schedule: Daily
+     - First run time: 00:00
+     - Frequency: Every day
      - Task Settings:
        ```bash
-       cd /volume1/crypto-signal && python3.9 crypto_signal.py
+       #!/bin/bash
+       cd /volume1/crypto-signal
+       /volume1/@appstore/python3.9/usr/local/bin/python3.9 crypto_signal.py >> /volume1/crypto-signal/crypto_signal.log 2>&1
        ```
+   - Click "OK" to save
+   - Right-click the new task and select "Run" to test it
+   - Check the log file at `/volume1/crypto-signal/crypto_signal.log` to verify it's working
 
-6. **Verify Setup**
+5. **Verify Setup**
    - Check the terminal output for successful startup
    - Monitor Discord channel for incoming signals
    - Verify signal generation for BTC and ETH
+   - Check the application logs for detailed information and troubleshooting
 
 ### Troubleshooting
 If you encounter any issues:
@@ -128,6 +125,11 @@ If you encounter any issues:
    ```
 6. Check the application logs in the terminal
 7. Verify the config.yml file permissions
+8. If cron job fails:
+   - Check the log file at `/volume1/crypto-signal/crypto_signal.log`
+   - Verify the Python path is correct
+   - Ensure the script has execute permissions
+   - Check if the cron job user has access to the application directory
 
 ## References
 - [Simple Crypto Signal GitHub Repository](https://github.com/yourusername/simple-crypto-signal)
@@ -137,6 +139,8 @@ If you encounter any issues:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2024-03-19 | System Admin | Initial version |
+| 1.1 | 2024-03-20 | System Admin | Updated package list, repository URL, and added logging note |
+| 1.2 | 2024-03-21 | System Admin | Added detailed cron job setup instructions |
 
 ## Approval
 | Role | Name | Signature | Date |

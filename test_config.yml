@@ -1,0 +1,19 @@
+discord:
+  message_template: "\U0001F6A8 {symbol} {signal_type} Signal\nPrice: {price}\nChange:\
+    \ {change}%\nTime: {time}"
+  webhook_url: test_webhook_url
+exchange: binance
+indicators:
+  ema:
+    long_period: 26
+    short_period: 12
+  sma:
+    long_period: 50
+    short_period: 20
+signals:
+  min_price_change: 2.0
+  trend_confirmation: 3
+symbols:
+- BTC/USDT
+- ETH/USDT
+timeframe: 1d

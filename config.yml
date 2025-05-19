@@ -3,8 +3,8 @@ exchange: binance
 
 # Trading pairs to monitor
 symbols:
-  - BTC/USDT
-  - ETH/USDT
+  - BTC/USD
+  - ETH/USD
 
 # Timeframe for analysis
 timeframe: 1d
@@ -27,5 +27,15 @@ signals:
 
 # Discord webhook settings
 discord:
-  webhook_url: "YOUR_DISCORD_WEBHOOK_URL"
-  message_template: "🚨 {symbol} {signal_type} Signal\nPrice: {price}\nChange: {change}%\nTime: {time}" 
+  webhook_url: "https://discord.com/api/webhooks/1060569448722993202/PZEJM6-X_cM1AcEf90M_dbDRGp6xDb6KlSXDgRU8gKJmwXasNzsKWu-Jha5--AQnR42E"
+  message_template: "🚨 {symbol} {signal_type} Signal\nPrice: {price}\nChange: {change}%\nTime: {time}"
+  status_template: |
+    📊 Daily Market Status for {symbol}
+    ----------------------------
+    💰 Price: ${price:.2f} (Change: {change:.2f}%)
+    📈 RSI: {rsi:.2f}
+    📊 MACD: {macd:.2f} (Signal: {macd_signal:.2f})
+    📉 SMA20: ${sma20:.2f}
+    📉 SMA50: ${sma50:.2f}
+    📊 BB: Upper ${bb_upper:.2f} | Lower ${bb_lower:.2f}
+    ⏰ Time: {time} 
