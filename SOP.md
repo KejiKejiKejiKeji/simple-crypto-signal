@@ -71,6 +71,13 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
      ```bash
      git clone https://github.com/yourusername/simple-crypto-signal.git .
      ```
+   - Create and activate virtual environment:
+     ```bash
+     python3.9 -m venv /volume1/crypto-signal/venv
+     source /volume1/crypto-signal/venv/bin/activate
+     python3.9 -m pip install -r requirements.txt
+     deactivate
+     ```
    - Configure the application:
      - Edit config.yml and update the Discord webhook URL
      - Adjust trading pairs and indicators if needed
@@ -89,7 +96,11 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
        ```bash
        #!/bin/bash
        cd /volume1/crypto-signal
-       /volume1/@appstore/python3.9/usr/local/bin/python3.9 crypto_signal.py >> /volume1/crypto-signal/crypto_signal.log 2>&1
+       
+       # Activate virtual environment and run the application
+       source /volume1/crypto-signal/venv/bin/activate
+       python3.9 crypto_signal.py >> /volume1/crypto-signal/crypto_signal.log 2>&1
+       deactivate
        ```
    - Click "OK" to save
    - Right-click the new task and select "Run" to test it
