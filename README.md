@@ -24,7 +24,14 @@ pip install -r requirements.txt
 ```
 
 3. Configure the application:
-- Copy `config.yml` and update the Discord webhook URL
+- Copy `config.yml` and update as needed. For the Discord webhook, use:
+  ```yaml
+  webhook_url: ${DISCORD_WEBHOOK_URL}
+  ```
+- Create a `.env` file in the project root:
+  ```
+  DISCORD_WEBHOOK_URL=your_actual_webhook_url_here
+  ```
 - Adjust trading pairs and indicators as needed
 
 ## Usage
@@ -47,7 +54,16 @@ Edit `config.yml` to customize:
 - Timeframe
 - Technical indicators
 - Signal thresholds
-- Discord webhook settings
+- Discord webhook settings (use `${DISCORD_WEBHOOK_URL}` as a placeholder)
+
+Sensitive information (like the Discord webhook URL) should be stored in the `.env` file, which is already included in `.gitignore`.
+
+## Running Tests
+
+All tests are located in the `tests/` directory. To run all tests:
+```bash
+pytest tests/
+```
 
 ## Running on Synology NAS
 

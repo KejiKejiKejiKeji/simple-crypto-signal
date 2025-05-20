@@ -27,7 +27,7 @@ signals:
 
 # Discord webhook settings
 discord:
-  webhook_url: "https://discord.com/api/webhooks/1060569448722993202/PZEJM6-X_cM1AcEf90M_dbDRGp6xDb6KlSXDgRU8gKJmwXasNzsKWu-Jha5--AQnR42E"
+  webhook_url: ${DISCORD_WEBHOOK_URL}
   message_template: "🚨 {symbol} {signal_type} Signal\nPrice: {price}\nChange: {change}%\nTime: {time}"
   status_template: |
     📊 Daily Market Status for {symbol}

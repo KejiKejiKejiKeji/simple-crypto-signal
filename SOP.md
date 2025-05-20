@@ -38,6 +38,11 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
    - Open Package Center in DSM
    - Search for "Python 3.9" (Synology's official package)
    - Install Python 3.9
+   - Verify Python installation:
+     ```bash
+     python3.9 --version
+     # Should output: Python 3.9.x
+     ```
    - Connect to NAS via SSH:
      - On Windows:
        1. Open PuTTY
@@ -56,8 +61,13 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
      # Install pip
      python3.9 get-pip.py
      
-     # Now install the required packages
+     # Upgrade pip when needed
      python3.9 -m pip install --upgrade pip
+
+     # Install/upgrade yfinance to latest version to handle rate limiting
+     python3.9 -m pip install --upgrade yfinance
+     
+     # Install other requirements
      python3.9 -m pip install -r requirements.txt
      ```
 
@@ -66,6 +76,10 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
      ```bash
      mkdir -p /volume1/crypto-signal
      cd /volume1/crypto-signal
+     ```
+   - Set proper permissions:
+     ```bash
+     chmod 755 /volume1/crypto-signal
      ```
    - Clone the repository:
      ```bash
@@ -78,8 +92,28 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
      python3.9 -m pip install -r requirements.txt
      deactivate
      ```
+   - Verify virtual environment:
+     ```bash
+     ls -l /volume1/crypto-signal/venv/bin/python
+     # Should show the Python executable
+     ```
    - Configure the application:
-     - Edit config.yml and update the Discord webhook URL
+     - Create .env file:
+       ```bash
+       # Create .env file
+       touch /volume1/crypto-signal/.env
+       
+       # Add Discord webhook URL
+       echo "DISCORD_WEBHOOK_URL=your_webhook_url_here" >> /volume1/crypto-signal/.env
+       
+       # Set proper permissions
+       chmod 600 /volume1/crypto-signal/.env
+       ```
+     - Edit config.yml and set the Discord webhook URL to use the environment variable placeholder:
+       ```yaml
+       webhook_url: ${DISCORD_WEBHOOK_URL}
+       ```
+     - Ensure webhook URL is properly secured (not exposed in logs)
      - Adjust trading pairs and indicators if needed
 
 4. **Set Up Cron Job on Synology NAS**
@@ -112,6 +146,26 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
    - Verify signal generation for BTC and ETH
    - Check the application logs for detailed information and troubleshooting
 
+### Log Management
+1. **Log Rotation**
+   - Set up log rotation to prevent disk space issues:
+     ```bash
+     # Create logrotate configuration
+     sudo nano /etc/logrotate.d/crypto-signal
+     ```
+   - Add the following configuration:
+     ```
+     /volume1/crypto-signal/crypto_signal.log {
+         daily
+         rotate 7
+         compress
+         delaycompress
+         missingok
+         notifempty
+         create 644 admin admin
+     }
+     ```
+
 ### Troubleshooting
 If you encounter any issues:
 1. Check SSH connection:
@@ -126,26 +180,47 @@ If you encounter any issues:
    - Check if git is installed: `which git`
    - If git is not installed, install it through Package Center
    - Try installing packages one by one to identify which one fails
-4. Check Python version:
+4. If you encounter yfinance 429 (Too Many Requests) errors:
+   - Check current yfinance version:
+     ```bash
+     python3.9 -m pip show yfinance
+     ```
+   - Update to latest version:
+     ```bash
+     python3.9 -m pip install --upgrade yfinance
+     ```
+   - Verify the update:
+     ```bash
+     python3.9 -m pip show yfinance
+     ```
+   - If issues persist, try adding a delay between requests in your code
+5. Check Python version:
    ```bash
    python3.9 --version
    ```
-5. Verify installation:
+6. Verify installation:
    ```bash
    ls /volume1/crypto-signal/crypto_signal.py
    ```
-6. Check the application logs in the terminal
-7. Verify the config.yml file permissions
-8. If cron job fails:
+7. Check the application logs in the terminal
+8. Verify the config.yml file permissions
+9. If cron job fails:
    - Check the log file at `/volume1/crypto-signal/crypto_signal.log`
    - Verify the Python path is correct
    - Ensure the script has execute permissions
    - Check if the cron job user has access to the application directory
-9. If you see import failure, you may not be in virtual env, we can get in by this command on windows.
+10. If you see import failure, you may not be in virtual env, we can get in by this command on windows.
 ```
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 .\venv39\Scripts\Activate.ps1
 ```
+
+### Security Best Practices
+1. Keep Discord webhook URL secure
+2. Regularly update Python packages
+3. Monitor log files for suspicious activity
+4. Use strong passwords for NAS access
+5. Regularly backup configuration files
 
 ## References
 - [Simple Crypto Signal GitHub Repository](https://github.com/yourusername/simple-crypto-signal)
@@ -157,10 +232,20 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 | 1.0 | 2024-03-19 | System Admin | Initial version |
 | 1.1 | 2024-03-20 | System Admin | Updated package list, repository URL, and added logging note |
 | 1.2 | 2024-03-21 | System Admin | Added detailed cron job setup instructions |
+| 1.3 | 2024-03-22 | System Admin | Added security best practices, log management, and verification steps |
 
 ## Approval
 | Role | Name | Signature | Date |
 |------|------|-----------|------|
 | Author | | | |
 | Reviewer | | | |
-| Approver | | | | 
+| Approver | | | |
+
+### Running Tests
+
+- All tests are located in the `tests/` directory.
+- To run all tests:
+  ```bash
+  pytest tests/
+  ```
+- Ensure your `.env` and `config.yml` are set up as described above for tests to pass. 

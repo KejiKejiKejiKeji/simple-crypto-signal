@@ -9,6 +9,10 @@ import yfinance as yf
 import pandas_ta as ta
 import logging
 import random
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -20,8 +24,13 @@ class CryptoSignal:
         with open(config_path, 'r') as file:
             self.config = yaml.safe_load(file)
         
+        # Get Discord webhook URL from environment variable
+        discord_webhook = os.getenv('DISCORD_WEBHOOK_URL')
+        if not discord_webhook:
+            raise ValueError("DISCORD_WEBHOOK_URL environment variable is not set")
+        
         # Initialize Discord webhook
-        self.discord_webhook = self.config['discord']['webhook_url']
+        self.discord_webhook = discord_webhook
         self.message_template = self.config['discord']['message_template']
         self.status_template = self.config['discord']['status_template']
         self.min_price_change = self.config['signals']['min_price_change']
