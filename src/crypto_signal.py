@@ -10,6 +10,7 @@ import pandas_ta as ta
 import logging
 import random
 from dotenv import load_dotenv
+import argparse
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 class CryptoSignal:
-    def __init__(self, config_path='config.yml'):
+    def __init__(self, config_path='../config.yml'):
         # Load configuration
         with open(config_path, 'r') as file:
             self.config = yaml.safe_load(file)
@@ -365,5 +366,8 @@ Bollinger Bands: Upper ${current_bb_upper:.2f} | Lower ${current_bb_lower:.2f}
             raise
 
 if __name__ == "__main__":
-    signal = CryptoSignal()
+    parser = argparse.ArgumentParser(description="Run the Crypto Signal application.")
+    parser.add_argument('--config', type=str, default="config.yml", help="Path to the config YAML file (default: config.yml in project root)")
+    args = parser.parse_args()
+    signal = CryptoSignal(config_path=args.config)
     signal.run() 

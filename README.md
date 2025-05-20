@@ -2,69 +2,30 @@
 
 A simplified cryptocurrency signal generator that focuses on trend following strategy and sends notifications to Discord.
 
-## Features
+## Documentation
 
-- Monitors BTC and ETH prices on Binance
-- Uses SMA and EMA for trend following
-- Sends signals to Discord webhook
-- Configurable through YAML file
-- Easy to install and run on Synology NAS
+- [Project Documentation](docs/README.md)
+- [Standard Operating Procedure](docs/SOP.md)
 
-## Installation
+## Project Structure
 
-1. Clone the repository:
-```bash
-git clone https://github.com/KejiKejiKejiKeji/simple-crypto-signal.git
-cd simple-crypto-signal
+```
+simple-crypto-signal/
+├── docs/                    # Documentation files
+├── scripts/                 # Utility scripts
+├── src/                    # Source code
+├── tests/                  # Test files
+├── .env                    # Environment variables (gitignored)
+├── .gitignore
+├── config.yml             # Configuration file
+└── requirements.txt       # Python dependencies
 ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## Quick Start
 
-3. Configure the application:
-- Copy `config.yml` and update as needed. For the Discord webhook, use:
-  ```yaml
-  webhook_url: ${DISCORD_WEBHOOK_URL}
-  ```
-- Create a `.env` file in the project root:
-  ```
-  DISCORD_WEBHOOK_URL=your_actual_webhook_url_here
-  ```
-- Adjust trading pairs and indicators as needed
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Copy `config.yml` and create `.env` file
+4. Run the application: `python src/crypto_signal.py`
 
-## Usage
-
-Run the application:
-```bash
-python crypto_signal.py
-```
-
-The application will:
-- Monitor configured trading pairs
-- Calculate technical indicators
-- Generate signals based on trend following strategy
-- Send notifications to Discord
-
-## Configuration
-
-Edit `config.yml` to customize:
-- Trading pairs
-- Timeframe
-- Technical indicators
-- Signal thresholds
-- Discord webhook settings (use `${DISCORD_WEBHOOK_URL}` as a placeholder)
-
-Sensitive information (like the Discord webhook URL) should be stored in the `.env` file, which is already included in `.gitignore`.
-
-## Running Tests
-
-All tests are located in the `tests/` directory. To run all tests:
-```bash
-pytest tests/
-```
-
-## Running on Synology NAS
-
-See the [SOP.md](SOP.md) file for detailed instructions on setting up and running the application on Synology NAS. 
+For detailed instructions, please refer to the [documentation](docs/README.md). 

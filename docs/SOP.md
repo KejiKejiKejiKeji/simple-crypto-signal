@@ -133,7 +133,7 @@ This SOP covers the installation, configuration, and operation of Simple Crypto 
        
        # Activate virtual environment and run the application
        source /volume1/crypto-signal/venv/bin/activate
-       python3.9 crypto_signal.py >> /volume1/crypto-signal/crypto_signal.log 2>&1
+       python3.9 src/crypto_signal.py >> /volume1/crypto-signal/crypto_signal.log 2>&1
        deactivate
        ```
    - Click "OK" to save
